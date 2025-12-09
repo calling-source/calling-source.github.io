@@ -1,0 +1,1730 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>函数形态的奇妙之旅 - 增强版</title>
+<script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+<script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+<script>
+  window.MathJax = {
+    tex: {
+      inlineMath: [['$', '$'], ['\\(', '\\)']],
+      displayMath: [['$$', '$$'], ['\\[', '\\]']]
+    }
+  };
+</script>
+<style>
+  :root {
+    --primary: #6366F1;
+    --secondary: #8B5CF6;
+    --accent: #EC4899;
+    --success: #10B981;
+    --warning: #F59E0B;
+    --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    --card-gradient: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    --bg: #F9FAFB;
+    --card: #FFFFFF;
+    --text: #1F2937;
+    --text-light: #6B7280;
+    --border: #E5E7EB;
+    font-family: "Microsoft YaHei", "PingFang SC", "Segoe UI", Arial, sans-serif;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg-gradient);
+    color: var(--text);
+    line-height: 1.6;
+    overflow-x: hidden;
+    min-height: 100vh;
+  }
+  header {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    color: var(--text);
+    padding: 2rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    position: relative;
+    overflow: hidden;
+  }
+  header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(99,102,241,0.1) 0%, rgba(139,92,246,0.1) 100%);
+    z-index: -1;
+  }
+  header h1 {
+    font-size: 2.5rem;
+    margin-bottom: 0.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+  header p {
+    font-size: 1.1rem;
+    color: var(--text-light);
+  }
+  .help-tooltip {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    background: white;
+    padding: 1rem;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    z-index: 1000;
+    max-width: 300px;
+    display: none;
+  }
+  .help-tooltip.show {
+    display: block;
+    animation: slideIn 0.3s ease-out;
+  }
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  .container {
+    display: grid;
+    grid-template-columns: 300px 1fr 340px;
+    gap: 1.5rem;
+    padding: 1.5rem;
+    max-width: 1900px;
+    margin: 0 auto;
+  }
+  .panel {
+    background: var(--card-gradient);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    height: fit-content;
+    position: sticky;
+    top: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .panel h3 {
+    color: var(--primary);
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+  .control-group {
+    margin-bottom: 1.5rem;
+  }
+  .control-group label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    color: var(--text);
+    font-size: 0.9rem;
+  }
+  .control-group select,
+  .control-group input[type="text"] {
+    width: 100%;
+    padding: 0.7rem;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-size: 0.95rem;
+    transition: all 0.3s;
+    background: white;
+  }
+  .control-group select:focus,
+  .control-group input[type="text"]:focus {
+    outline: none;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(99,102,241,0.1);
+  }
+  .slider-container {
+    margin: 1rem 0;
+  }
+  .slider-label {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.3rem;
+    font-size: 0.85rem;
+    color: var(--text-light);
+  }
+  .slider-label .value {
+    font-weight: 600;
+    color: var(--primary);
+    font-family: "Courier New", monospace;
+  }
+  input[type="range"] {
+    width: 100%;
+    height: 8px;
+    border-radius: 4px;
+    background: linear-gradient(to right, var(--border), var(--primary));
+    outline: none;
+    -webkit-appearance: none;
+    transition: all 0.3s;
+  }
+  input[type="range"]:hover {
+    background: linear-gradient(to right, var(--border), var(--secondary));
+  }
+  input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    transition: all 0.2s;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+  }
+  input[type="range"]::-webkit-slider-thumb:hover {
+    transform: scale(1.3);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.5);
+  }
+  input[type="range"]::-moz-range-thumb {
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: var(--primary);
+    cursor: pointer;
+    border: none;
+    box-shadow: 0 2px 8px rgba(99,102,241,0.3);
+  }
+  .btn {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    padding: 0.8rem 1.2rem;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.95rem;
+    font-weight: 600;
+    transition: all 0.3s;
+    width: 100%;
+    margin-top: 0.5rem;
+    box-shadow: 0 4px 12px rgba(99,102,241,0.3);
+  }
+  .btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(99,102,241,0.4);
+  }
+  .btn:active {
+    transform: translateY(0);
+  }
+  .btn.secondary {
+    background: linear-gradient(135deg, var(--text-light), #4B5563);
+  }
+  .btn.danger {
+    background: linear-gradient(135deg, var(--accent), #DB2777);
+  }
+  .btn.success {
+    background: linear-gradient(135deg, var(--success), #059669);
+  }
+  .btn.warning {
+    background: linear-gradient(135deg, var(--warning), #D97706);
+  }
+  .preset-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+  .preset-btn {
+    background: white;
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    padding: 0.5rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    transition: all 0.2s;
+    font-weight: 500;
+  }
+  .preset-btn:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(99,102,241,0.3);
+  }
+  .canvas-wrapper {
+    background: var(--card-gradient);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    position: relative;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .canvas-container {
+    position: relative;
+    background: white;
+    border: 3px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+    cursor: crosshair;
+    box-shadow: inset 0 2px 10px rgba(0,0,0,0.05);
+  }
+  #mainCanvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    touch-action: none;
+  }
+  .canvas-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    z-index: 10;
+  }
+  .canvas-btn {
+    width: 44px;
+    height: 44px;
+    background: white;
+    border: 2px solid var(--primary);
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 1.3rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .canvas-btn:hover {
+    background: var(--primary);
+    color: white;
+    transform: scale(1.1) rotate(5deg);
+  }
+  .info-panel {
+    background: var(--card-gradient);
+    border-radius: 16px;
+    padding: 1.5rem;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.1);
+    height: fit-content;
+    position: sticky;
+    top: 1.5rem;
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255,255,255,0.5);
+  }
+  .function-item {
+    background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+    border-left: 4px solid var(--primary);
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 8px;
+    transition: all 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .function-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+    transition: left 0.5s;
+  }
+  .function-item:hover::before {
+    left: 100%;
+  }
+  .function-item:hover {
+    transform: translateX(4px);
+    box-shadow: 0 4px 12px rgba(99,102,241,0.2);
+  }
+  .function-item.active {
+    border-left-color: var(--success);
+    background: linear-gradient(135deg, #ECFDF5, #D1FAE5);
+  }
+  .function-expression {
+    font-family: "Courier New", monospace;
+    font-size: 1rem;
+    color: var(--text);
+    margin: 0.5rem 0;
+    padding: 0.6rem;
+    background: white;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+  }
+  .feature-points {
+    margin-top: 1rem;
+    max-height: 300px;
+    overflow-y: auto;
+  }
+  .feature-point {
+    padding: 0.6rem;
+    margin: 0.3rem 0;
+    background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+    border-radius: 8px;
+    font-size: 0.85rem;
+    border-left: 3px solid var(--warning);
+    animation: pulse 2s infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.8; }
+  }
+  .coordinate-display {
+    position: absolute;
+    bottom: 20px;
+    left: 20px;
+    background: rgba(0,0,0,0.85);
+    color: white;
+    padding: 0.6rem 1rem;
+    border-radius: 8px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    pointer-events: none;
+    display: none;
+    backdrop-filter: blur(10px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+  }
+  .color-picker {
+    width: 100%;
+    height: 45px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+  }
+  .color-picker:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  }
+  .function-list {
+    max-height: 400px;
+    overflow-y: auto;
+  }
+  .checkbox-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin: 0.5rem 0;
+    padding: 0.4rem;
+    border-radius: 6px;
+    transition: background 0.2s;
+  }
+  .checkbox-group:hover {
+    background: rgba(99,102,241,0.05);
+  }
+  .checkbox-group input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: var(--primary);
+  }
+  .legend {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    margin-top: 1rem;
+    padding: 1rem;
+    background: linear-gradient(135deg, #F9FAFB, #F3F4F6);
+    border-radius: 10px;
+  }
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.3rem 0.6rem;
+    background: white;
+    border-radius: 6px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  .legend-color {
+    width: 24px;
+    height: 4px;
+    border-radius: 2px;
+  }
+  .integral-controls {
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    border: 2px dashed var(--primary);
+  }
+  .integral-display {
+    margin-top: 0.5rem;
+    padding: 0.5rem;
+    background: white;
+    border-radius: 6px;
+    font-family: "Courier New", monospace;
+    font-size: 0.9rem;
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .animation-controls {
+    background: linear-gradient(135deg, #F0FDF4, #D1FAE5);
+    padding: 1rem;
+    border-radius: 10px;
+    margin-top: 1rem;
+    border: 2px dashed var(--success);
+  }
+  .animation-progress {
+    width: 100%;
+    height: 8px;
+    background: var(--border);
+    border-radius: 4px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+  }
+  .animation-progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--success), var(--primary));
+    width: 0%;
+    transition: width 0.1s;
+    border-radius: 4px;
+  }
+  @keyframes pointPulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.7; }
+  }
+  .animated-point {
+    animation: pointPulse 1.5s infinite;
+  }
+  @media (max-width: 1400px) {
+    .container {
+      grid-template-columns: 280px 1fr 320px;
+    }
+  }
+  @media (max-width: 1024px) {
+    .container {
+      grid-template-columns: 1fr;
+    }
+    .panel, .info-panel {
+      position: static;
+    }
+    .canvas-wrapper {
+      order: -1;
+    }
+  }
+  .help-btn {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: white;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    box-shadow: 0 4px 20px rgba(99,102,241,0.4);
+    transition: all 0.3s;
+    z-index: 999;
+  }
+  .help-btn:hover {
+    transform: scale(1.1) rotate(360deg);
+    box-shadow: 0 6px 30px rgba(99,102,241,0.6);
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>🌟 函数形态的奇妙之旅 - 增强版</h1>
+  <p>探索函数图像随参数变化的动态之美 | 支持导数、积分、动画演示</p>
+</header>
+
+<button class="help-btn" onclick="toggleHelp()" title="操作指引">?</button>
+<div class="help-tooltip" id="helpTooltip">
+  <h4 style="margin-bottom: 0.5rem; color: var(--primary);">📖 操作指引</h4>
+  <ul style="font-size: 0.85rem; line-height: 1.8; color: var(--text-light);">
+    <li><strong>鼠标拖拽</strong>：平移画布</li>
+    <li><strong>滚轮</strong>：缩放视图</li>
+    <li><strong>方向键</strong>：调节当前参数</li>
+    <li><strong>Ctrl+S</strong>：保存截图</li>
+    <li><strong>空格键</strong>：播放/暂停动画</li>
+  </ul>
+</div>
+
+<div class="container">
+  <!-- 左侧控制面板 -->
+  <div class="panel">
+    <h3>🎛️ 控制面板</h3>
+    
+    <div class="control-group">
+      <label>函数类型</label>
+      <select id="functionType" onchange="changeFunctionType()">
+        <option value="linear">一次函数 y = ax + b</option>
+        <option value="quadratic">二次函数 y = ax² + bx + c</option>
+        <option value="exponential">指数函数 y = a·e^(bx) + c</option>
+        <option value="logarithmic">对数函数 y = a·ln(bx) + c</option>
+        <option value="sinusoidal">正弦函数 y = a·sin(bx + c) + d</option>
+        <option value="cosine">余弦函数 y = a·cos(bx + c) + d</option>
+        <option value="rational">有理函数 y = (ax + b) / (cx + d)</option>
+        <option value="power">幂函数 y = a·x^b + c</option>
+      </select>
+    </div>
+
+    <div class="control-group">
+      <label>预设示例</label>
+      <div class="preset-grid" id="presetGrid"></div>
+    </div>
+
+    <div id="parameterControls"></div>
+
+    <div class="control-group">
+      <label>函数颜色</label>
+      <input type="color" id="functionColor" class="color-picker" value="#6366F1" onchange="updatePlot()">
+    </div>
+
+    <div class="control-group">
+      <label>显示选项</label>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showGrid" checked onchange="updatePlot()">
+        <label for="showGrid">显示网格</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showAxes" checked onchange="updatePlot()">
+        <label for="showAxes">显示坐标轴</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showPoints" checked onchange="updatePlot()">
+        <label for="showPoints">标注特征点</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showDerivative" onchange="updatePlot()">
+        <label for="showDerivative">显示导数图像</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showIntegral" onchange="toggleIntegral()">
+        <label for="showIntegral">显示积分面积</label>
+      </div>
+      <div class="checkbox-group">
+        <input type="checkbox" id="showLabels" checked onchange="updatePlot()">
+        <label for="showLabels">显示标签</label>
+      </div>
+    </div>
+
+    <div id="integralControls" style="display: none;"></div>
+
+    <div class="animation-controls">
+      <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">动画演示</label>
+      <button class="btn success" id="animationBtn" onclick="toggleAnimation()">▶️ 开始动画</button>
+      <div class="animation-progress" id="animationProgress" style="display: none;">
+        <div class="animation-progress-bar" id="animationProgressBar"></div>
+      </div>
+    </div>
+
+    <button class="btn" onclick="addFunction()">➕ 添加函数</button>
+    <button class="btn secondary" onclick="resetView()">🔄 重置视图</button>
+    <button class="btn warning" onclick="saveScreenshot()">📸 保存截图</button>
+    <button class="btn danger" onclick="clearAll()">🗑️ 清除所有</button>
+  </div>
+
+  <!-- 中间画布区域 -->
+  <div class="canvas-wrapper">
+    <div class="canvas-container" id="canvasContainer">
+      <div class="canvas-controls">
+        <div class="canvas-btn" onclick="zoomIn()" title="放大">+</div>
+        <div class="canvas-btn" onclick="zoomOut()" title="缩小">−</div>
+        <div class="canvas-btn" onclick="resetView()" title="重置">⌂</div>
+      </div>
+      <canvas id="mainCanvas" width="900" height="650"></canvas>
+      <div class="coordinate-display" id="coordinateDisplay"></div>
+    </div>
+    <div class="legend" id="legend"></div>
+  </div>
+
+  <!-- 右侧信息面板 -->
+  <div class="info-panel">
+    <h3>📊 函数信息</h3>
+    <div class="function-list" id="functionList"></div>
+    <div class="feature-points" id="featurePoints"></div>
+  </div>
+</div>
+
+<script>
+  // 全局状态
+  let functions = [];
+  let viewState = {
+    scale: 50,
+    offsetX: 0,
+    offsetY: 0,
+    isDragging: false,
+    lastX: 0,
+    lastY: 0
+  };
+  let animationFrame = null;
+  let isAnimating = false;
+  let animationInterval = null;
+  let currentParamIndex = 0;
+  let animationDirection = 1;
+
+  // 预设示例配置
+  const presets = {
+    linear: [
+      { name: '标准直线', params: { a: 1, b: 0 } },
+      { name: '正斜率', params: { a: 2, b: 0 } },
+      { name: '负斜率', params: { a: -1, b: 0 } },
+      { name: '截距线', params: { a: 1, b: 3 } }
+    ],
+    quadratic: [
+      { name: '标准抛物线', params: { a: 1, b: 0, c: 0 } },
+      { name: '开口向上', params: { a: 2, b: -3, c: 1 } },
+      { name: '开口向下', params: { a: -1, b: 2, c: 3 } },
+      { name: '顶点偏移', params: { a: 1, b: -4, c: 4 } }
+    ],
+    exponential: [
+      { name: '标准指数', params: { a: 1, b: 1, c: 0 } },
+      { name: '增长指数', params: { a: 2, b: 1.5, c: 0 } },
+      { name: '衰减指数', params: { a: 1, b: -0.5, c: 0 } },
+      { name: '偏移指数', params: { a: 1, b: 1, c: -2 } }
+    ],
+    logarithmic: [
+      { name: '标准对数', params: { a: 1, b: 1, c: 0 } },
+      { name: '快速增长', params: { a: 2, b: 1, c: 0 } },
+      { name: '缓慢增长', params: { a: 0.5, b: 1, c: 0 } },
+      { name: '向下偏移', params: { a: 1, b: 1, c: -3 } }
+    ],
+    sinusoidal: [
+      { name: '标准正弦', params: { a: 1, b: 1, c: 0, d: 0 } },
+      { name: '高振幅', params: { a: 2, b: 1, c: 0, d: 0 } },
+      { name: '高频率', params: { a: 1, b: 3, c: 0, d: 0 } },
+      { name: '相位偏移', params: { a: 1, b: 1, c: Math.PI/2, d: 0 } }
+    ],
+    cosine: [
+      { name: '标准余弦', params: { a: 1, b: 1, c: 0, d: 0 } },
+      { name: '高振幅', params: { a: 2, b: 1, c: 0, d: 0 } },
+      { name: '高频率', params: { a: 1, b: 2, c: 0, d: 0 } },
+      { name: '垂直偏移', params: { a: 1, b: 1, c: 0, d: 2 } }
+    ],
+    rational: [
+      { name: '标准有理', params: { a: 1, b: 0, c: 1, d: 0 } },
+      { name: '双曲线', params: { a: 1, b: 1, c: 1, d: -1 } },
+      { name: '复杂形式', params: { a: 2, b: 1, c: 1, d: 2 } }
+    ],
+    power: [
+      { name: '平方函数', params: { a: 1, b: 2, c: 0 } },
+      { name: '立方函数', params: { a: 1, b: 3, c: 0 } },
+      { name: '平方根', params: { a: 1, b: 0.5, c: 0 } },
+      { name: '倒数函数', params: { a: 1, b: -1, c: 0 } }
+    ]
+  };
+
+  // 函数定义（保持原有定义）
+  const functionDefinitions = {
+    linear: {
+      name: '一次函数',
+      formula: 'y = ax + b',
+      params: [
+        { name: 'a', label: '斜率 a', min: -5, max: 5, step: 0.1, value: 1 },
+        { name: 'b', label: '截距 b', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => params.a * x + params.b,
+      derivative: (x, params) => params.a,
+      features: (params) => {
+        const zero = params.a !== 0 ? -params.b / params.a : null;
+        return zero !== null ? [{ type: '零点', x: zero, y: 0 }] : [];
+      }
+    },
+    quadratic: {
+      name: '二次函数',
+      formula: 'y = ax² + bx + c',
+      params: [
+        { name: 'a', label: '系数 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '系数 b', min: -5, max: 5, step: 0.1, value: 0 },
+        { name: 'c', label: '系数 c', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => params.a * x * x + params.b * x + params.c,
+      derivative: (x, params) => 2 * params.a * x + params.b,
+      features: (params) => {
+        const points = [];
+        if (params.a !== 0) {
+          const vertexX = -params.b / (2 * params.a);
+          const vertexY = params.a * vertexX * vertexX + params.b * vertexX + params.c;
+          points.push({ type: params.a > 0 ? '极小值' : '极大值', x: vertexX, y: vertexY });
+          
+          const discriminant = params.b * params.b - 4 * params.a * params.c;
+          if (discriminant >= 0) {
+            const sqrtD = Math.sqrt(discriminant);
+            const x1 = (-params.b - sqrtD) / (2 * params.a);
+            const x2 = (-params.b + sqrtD) / (2 * params.a);
+            points.push({ type: '零点', x: x1, y: 0 });
+            if (Math.abs(x1 - x2) > 0.001) {
+              points.push({ type: '零点', x: x2, y: 0 });
+            }
+          }
+        }
+        return points;
+      }
+    },
+    exponential: {
+      name: '指数函数',
+      formula: 'y = a·e^(bx) + c',
+      params: [
+        { name: 'a', label: '系数 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '指数 b', min: -2, max: 2, step: 0.1, value: 1 },
+        { name: 'c', label: '常数 c', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => params.a * Math.exp(params.b * x) + params.c,
+      derivative: (x, params) => params.a * params.b * Math.exp(params.b * x),
+      features: (params) => {
+        const points = [];
+        if (params.a !== 0 && params.b !== 0) {
+          const zero = Math.log(-params.c / params.a) / params.b;
+          if (isFinite(zero) && Math.abs(params.a * Math.exp(params.b * zero) + params.c) < 0.01) {
+            points.push({ type: '零点', x: zero, y: 0 });
+          }
+        }
+        return points;
+      }
+    },
+    logarithmic: {
+      name: '对数函数',
+      formula: 'y = a·ln(bx) + c',
+      params: [
+        { name: 'a', label: '系数 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '系数 b', min: 0.1, max: 5, step: 0.1, value: 1 },
+        { name: 'c', label: '常数 c', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => {
+        if (params.b * x <= 0) return NaN;
+        return params.a * Math.log(params.b * x) + params.c;
+      },
+      derivative: (x, params) => {
+        if (params.b * x <= 0) return NaN;
+        return params.a * params.b / (params.b * x);
+      },
+      features: (params) => {
+        const points = [];
+        if (params.a !== 0 && params.b > 0) {
+          const zero = Math.exp(-params.c / params.a) / params.b;
+          if (isFinite(zero) && zero > 0) {
+            points.push({ type: '零点', x: zero, y: 0 });
+          }
+        }
+        return points;
+      }
+    },
+    sinusoidal: {
+      name: '正弦函数',
+      formula: 'y = a·sin(bx + c) + d',
+      params: [
+        { name: 'a', label: '振幅 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '频率 b', min: 0.1, max: 3, step: 0.1, value: 1 },
+        { name: 'c', label: '相位 c', min: -Math.PI, max: Math.PI, step: 0.1, value: 0 },
+        { name: 'd', label: '偏移 d', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => params.a * Math.sin(params.b * x + params.c) + params.d,
+      derivative: (x, params) => params.a * params.b * Math.cos(params.b * x + params.c),
+      features: (params) => {
+        const points = [];
+        const period = 2 * Math.PI / params.b;
+        for (let i = -2; i <= 2; i++) {
+          const x = (i * Math.PI - params.c) / params.b;
+          const y = params.a * Math.sin(params.b * x + params.c) + params.d;
+          points.push({ type: i % 2 === 0 ? '零点' : '极值', x: x, y: y });
+        }
+        return points;
+      }
+    },
+    cosine: {
+      name: '余弦函数',
+      formula: 'y = a·cos(bx + c) + d',
+      params: [
+        { name: 'a', label: '振幅 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '频率 b', min: 0.1, max: 3, step: 0.1, value: 1 },
+        { name: 'c', label: '相位 c', min: -Math.PI, max: Math.PI, step: 0.1, value: 0 },
+        { name: 'd', label: '偏移 d', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => params.a * Math.cos(params.b * x + params.c) + params.d,
+      derivative: (x, params) => -params.a * params.b * Math.sin(params.b * x + params.c),
+      features: (params) => {
+        const points = [];
+        for (let i = -2; i <= 2; i++) {
+          const x = ((i + 0.5) * Math.PI - params.c) / params.b;
+          const y = params.a * Math.cos(params.b * x + params.c) + params.d;
+          points.push({ type: i % 2 === 0 ? '极值' : '零点', x: x, y: y });
+        }
+        return points;
+      }
+    },
+    rational: {
+      name: '有理函数',
+      formula: 'y = (ax + b) / (cx + d)',
+      params: [
+        { name: 'a', label: '分子系数 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '分子常数 b', min: -5, max: 5, step: 0.1, value: 0 },
+        { name: 'c', label: '分母系数 c', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'd', label: '分母常数 d', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => {
+        const denom = params.c * x + params.d;
+        if (Math.abs(denom) < 0.001) return NaN;
+        return (params.a * x + params.b) / denom;
+      },
+      derivative: (x, params) => {
+        const denom = params.c * x + params.d;
+        if (Math.abs(denom) < 0.001) return NaN;
+        return (params.a * params.d - params.b * params.c) / (denom * denom);
+      },
+      features: (params) => {
+        const points = [];
+        if (params.a !== 0) {
+          const zero = -params.b / params.a;
+          points.push({ type: '零点', x: zero, y: 0 });
+        }
+        if (params.c !== 0) {
+          const asymptote = -params.d / params.c;
+          points.push({ type: '渐近线', x: asymptote, y: NaN });
+        }
+        return points;
+      }
+    },
+    power: {
+      name: '幂函数',
+      formula: 'y = a·x^b + c',
+      params: [
+        { name: 'a', label: '系数 a', min: -3, max: 3, step: 0.1, value: 1 },
+        { name: 'b', label: '指数 b', min: -3, max: 3, step: 0.1, value: 2 },
+        { name: 'c', label: '常数 c', min: -5, max: 5, step: 0.1, value: 0 }
+      ],
+      eval: (x, params) => {
+        if (x < 0 && params.b !== Math.floor(params.b)) return NaN;
+        return params.a * Math.pow(x, params.b) + params.c;
+      },
+      derivative: (x, params) => {
+        if (x < 0 && params.b !== Math.floor(params.b)) return NaN;
+        return params.a * params.b * Math.pow(x, params.b - 1);
+      },
+      features: (params) => {
+        const points = [];
+        if (params.a !== 0 && params.b > 0) {
+          const zero = Math.pow(-params.c / params.a, 1 / params.b);
+          if (isFinite(zero) && !isNaN(zero)) {
+            points.push({ type: '零点', x: zero, y: 0 });
+          }
+        }
+        if (params.b > 1 && params.a !== 0) {
+          points.push({ type: '极值', x: 0, y: params.c });
+        }
+        return points;
+      }
+    }
+  };
+
+  // 初始化
+  function init() {
+    changeFunctionType();
+    setupCanvas();
+    setupKeyboard();
+    addFunction();
+  }
+
+  // 设置键盘快捷键
+  function setupKeyboard() {
+    document.addEventListener('keydown', (e) => {
+      if (functions.length === 0) return;
+      
+      const currentFunc = functions[functions.length - 1];
+      const def = functionDefinitions[currentFunc.type];
+      const params = def.params;
+      
+      if (params.length === 0) return;
+      
+      let paramIndex = currentParamIndex % params.length;
+      const param = params[paramIndex];
+      const currentValue = currentFunc.params[param.name];
+      let newValue = currentValue;
+      
+      if (e.key === 'ArrowUp' || e.key === 'ArrowRight') {
+        newValue = Math.min(param.max, currentValue + param.step);
+        e.preventDefault();
+      } else if (e.key === 'ArrowDown' || e.key === 'ArrowLeft') {
+        newValue = Math.max(param.min, currentValue - param.step);
+        e.preventDefault();
+      } else if (e.key === ' ' || e.key === 'Space') {
+        e.preventDefault();
+        toggleAnimation();
+      } else if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        saveScreenshot();
+      } else {
+        return;
+      }
+      
+      if (newValue !== currentValue) {
+        currentFunc.params[param.name] = newValue;
+        const slider = document.getElementById(`param_${param.name}`);
+        if (slider) {
+          slider.value = newValue;
+          document.getElementById(`value_${param.name}`).textContent = newValue.toFixed(2);
+        }
+        updatePlot();
+      }
+    });
+  }
+
+  // 切换帮助提示
+  function toggleHelp() {
+    const tooltip = document.getElementById('helpTooltip');
+    tooltip.classList.toggle('show');
+  }
+
+  // 设置画布事件
+  function setupCanvas() {
+    const canvas = document.getElementById('mainCanvas');
+    const container = document.getElementById('canvasContainer');
+    
+    // 鼠标事件
+    canvas.addEventListener('mousedown', (e) => {
+      viewState.isDragging = true;
+      viewState.lastX = e.offsetX;
+      viewState.lastY = e.offsetY;
+    });
+    
+    canvas.addEventListener('mousemove', (e) => {
+      if (viewState.isDragging) {
+        viewState.offsetX += (e.offsetX - viewState.lastX) / viewState.scale;
+        viewState.offsetY -= (e.offsetY - viewState.lastY) / viewState.scale;
+        viewState.lastX = e.offsetX;
+        viewState.lastY = e.offsetY;
+        updatePlot();
+      } else {
+        showCoordinates(e.offsetX, e.offsetY);
+      }
+    });
+    
+    canvas.addEventListener('mouseup', () => {
+      viewState.isDragging = false;
+    });
+    
+    canvas.addEventListener('mouseleave', () => {
+      viewState.isDragging = false;
+      document.getElementById('coordinateDisplay').style.display = 'none';
+    });
+    
+    canvas.addEventListener('wheel', (e) => {
+      e.preventDefault();
+      const delta = e.deltaY > 0 ? 0.9 : 1.1;
+      viewState.scale *= delta;
+      viewState.scale = Math.max(10, Math.min(200, viewState.scale));
+      updatePlot();
+    });
+    
+    // 触摸事件（移动端优化）
+    let touchStartX = 0, touchStartY = 0;
+    canvas.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      const touch = e.touches[0];
+      touchStartX = touch.clientX;
+      touchStartY = touch.clientY;
+      viewState.isDragging = true;
+    });
+    
+    canvas.addEventListener('touchmove', (e) => {
+      e.preventDefault();
+      if (viewState.isDragging && e.touches.length === 1) {
+        const touch = e.touches[0];
+        const dx = touch.clientX - touchStartX;
+        const dy = touch.clientY - touchStartY;
+        viewState.offsetX += dx / viewState.scale;
+        viewState.offsetY -= dy / viewState.scale;
+        touchStartX = touch.clientX;
+        touchStartY = touch.clientY;
+        updatePlot();
+      } else if (e.touches.length === 2) {
+        // 双指缩放
+        const touch1 = e.touches[0];
+        const touch2 = e.touches[1];
+        const distance = Math.hypot(touch2.clientX - touch1.clientX, touch2.clientY - touch1.clientY);
+        if (viewState.lastTouchDistance) {
+          const scale = distance / viewState.lastTouchDistance;
+          viewState.scale *= scale;
+          viewState.scale = Math.max(10, Math.min(200, viewState.scale));
+          updatePlot();
+        }
+        viewState.lastTouchDistance = distance;
+      }
+    });
+    
+    canvas.addEventListener('touchend', () => {
+      viewState.isDragging = false;
+      viewState.lastTouchDistance = null;
+    });
+  }
+
+  // 显示坐标
+  function showCoordinates(px, py) {
+    const canvas = document.getElementById('mainCanvas');
+    const width = canvas.width;
+    const height = canvas.height;
+    const centerX = width / 2;
+    const centerY = height / 2;
+    
+    const x = (px - centerX) / viewState.scale - viewState.offsetX;
+    const y = (centerY - py) / viewState.scale - viewState.offsetY;
+    
+    const display = document.getElementById('coordinateDisplay');
+    display.textContent = `(${x.toFixed(2)}, ${y.toFixed(2)})`;
+    display.style.display = 'block';
+    display.style.left = Math.min(px + 10, width - 150) + 'px';
+    display.style.top = Math.max(py - 30, 10) + 'px';
+  }
+
+  // 改变函数类型
+  function changeFunctionType() {
+    const type = document.getElementById('functionType').value;
+    const def = functionDefinitions[type];
+    const container = document.getElementById('parameterControls');
+    
+    container.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.95rem;">参数调节</h4>';
+    
+    def.params.forEach((param, index) => {
+      const sliderContainer = document.createElement('div');
+      sliderContainer.className = 'slider-container';
+      sliderContainer.innerHTML = `
+        <div class="slider-label">
+          <span>${param.label}</span>
+          <span class="value" id="value_${param.name}">${param.value}</span>
+        </div>
+        <input type="range" 
+               id="param_${param.name}" 
+               min="${param.min}" 
+               max="${param.max}" 
+               step="${param.step}" 
+               value="${param.value}"
+               oninput="updateParameter('${param.name}', this.value)">
+      `;
+      container.appendChild(sliderContainer);
+    });
+    
+    // 更新预设按钮
+    updatePresets(type);
+  }
+
+  // 更新预设按钮
+  function updatePresets(type) {
+    const grid = document.getElementById('presetGrid');
+    grid.innerHTML = '';
+    const typePresets = presets[type] || [];
+    typePresets.forEach(preset => {
+      const btn = document.createElement('button');
+      btn.className = 'preset-btn';
+      btn.textContent = preset.name;
+      btn.onclick = () => applyPreset(preset.params);
+      grid.appendChild(btn);
+    });
+  }
+
+  // 应用预设
+  function applyPreset(params) {
+    if (functions.length === 0) addFunction();
+    const currentFunc = functions[functions.length - 1];
+    Object.keys(params).forEach(key => {
+      currentFunc.params[key] = params[key];
+      const slider = document.getElementById(`param_${key}`);
+      const valueDisplay = document.getElementById(`value_${key}`);
+      if (slider) {
+        slider.value = params[key];
+        if (valueDisplay) valueDisplay.textContent = params[key].toFixed(2);
+      }
+    });
+    updatePlot();
+  }
+
+  // 更新参数
+  function updateParameter(name, value) {
+    if (functions.length === 0) return;
+    const currentFunc = functions[functions.length - 1];
+    currentFunc.params[name] = parseFloat(value);
+    document.getElementById(`value_${name}`).textContent = parseFloat(value).toFixed(2);
+    updatePlot();
+  }
+
+  // 切换积分显示
+  function toggleIntegral() {
+    const showIntegral = document.getElementById('showIntegral').checked;
+    const container = document.getElementById('integralControls');
+    
+    if (showIntegral) {
+      container.style.display = 'block';
+      container.innerHTML = `
+        <div class="integral-controls">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">积分区间</label>
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>下限 a</span>
+              <span class="value" id="value_integral_a">-2</span>
+            </div>
+            <input type="range" id="param_integral_a" min="-10" max="10" step="0.1" value="-2" oninput="updateIntegral('a', this.value)">
+          </div>
+          <div class="slider-container">
+            <div class="slider-label">
+              <span>上限 b</span>
+              <span class="value" id="value_integral_b">2</span>
+            </div>
+            <input type="range" id="param_integral_b" min="-10" max="10" step="0.1" value="2" oninput="updateIntegral('b', this.value)">
+          </div>
+          <div class="integral-display" id="integralValue">面积: 计算中...</div>
+        </div>
+      `;
+    } else {
+      container.style.display = 'none';
+    }
+    updatePlot();
+  }
+
+  // 更新积分
+  function updateIntegral(which, value) {
+    document.getElementById(`value_integral_${which}`).textContent = parseFloat(value).toFixed(2);
+    updatePlot();
+  }
+
+  // 数值积分（辛普森法）
+  function integrate(func, a, b, n = 1000) {
+    if (a >= b) return 0;
+    const h = (b - a) / n;
+    let sum = 0;
+    for (let i = 0; i < n; i++) {
+      const x1 = a + i * h;
+      const x2 = a + (i + 0.5) * h;
+      const x3 = a + (i + 1) * h;
+      const y1 = func(x1);
+      const y2 = func(x2);
+      const y3 = func(x3);
+      if (isFinite(y1) && isFinite(y2) && isFinite(y3)) {
+        sum += (y1 + 4 * y2 + y3) * h / 6;
+      }
+    }
+    return sum;
+  }
+
+  // 切换动画
+  function toggleAnimation() {
+    isAnimating = !isAnimating;
+    const btn = document.getElementById('animationBtn');
+    const progress = document.getElementById('animationProgress');
+    const progressBar = document.getElementById('animationProgressBar');
+    
+    if (isAnimating) {
+      btn.textContent = '⏸️ 暂停动画';
+      progress.style.display = 'block';
+      startAnimation();
+    } else {
+      btn.textContent = '▶️ 开始动画';
+      progress.style.display = 'none';
+      stopAnimation();
+    }
+  }
+
+  // 开始动画
+  function startAnimation() {
+    if (functions.length === 0) {
+      isAnimating = false;
+      return;
+    }
+    
+    const currentFunc = functions[functions.length - 1];
+    const def = functionDefinitions[currentFunc.type];
+    if (def.params.length === 0) {
+      isAnimating = false;
+      return;
+    }
+    
+    let progress = 0;
+    const progressBar = document.getElementById('animationProgressBar');
+    
+    animationInterval = setInterval(() => {
+      if (!isAnimating) return;
+      
+      const paramIndex = currentParamIndex % def.params.length;
+      const param = def.params[paramIndex];
+      const currentValue = currentFunc.params[param.name];
+      
+      let newValue = currentValue + animationDirection * param.step * 2;
+      
+      if (newValue >= param.max || newValue <= param.min) {
+        animationDirection *= -1;
+        newValue = Math.max(param.min, Math.min(param.max, newValue));
+        currentParamIndex++;
+      }
+      
+      currentFunc.params[param.name] = newValue;
+      const slider = document.getElementById(`param_${param.name}`);
+      if (slider) {
+        slider.value = newValue;
+        document.getElementById(`value_${param.name}`).textContent = newValue.toFixed(2);
+      }
+      
+      progress = (progress + 0.5) % 100;
+      progressBar.style.width = progress + '%';
+      
+      updatePlot();
+    }, 50);
+  }
+
+  // 停止动画
+  function stopAnimation() {
+    if (animationInterval) {
+      clearInterval(animationInterval);
+      animationInterval = null;
+    }
+  }
+
+  // 添加函数
+  function addFunction() {
+    const type = document.getElementById('functionType').value;
+    const def = functionDefinitions[type];
+    const color = document.getElementById('functionColor').value;
+    
+    const params = {};
+    def.params.forEach(param => {
+      params[param.name] = param.value;
+    });
+    
+    functions.push({
+      type: type,
+      params: params,
+      color: color,
+      id: Date.now()
+    });
+    
+    updatePlot();
+    updateFunctionList();
+  }
+
+  // 更新函数列表
+  function updateFunctionList() {
+    const list = document.getElementById('functionList');
+    list.innerHTML = '';
+    
+    functions.forEach((func, index) => {
+      const def = functionDefinitions[func.type];
+      const item = document.createElement('div');
+      item.className = 'function-item';
+      if (index === functions.length - 1) item.classList.add('active');
+      item.innerHTML = `
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem;">
+          <strong>${def.name} #${index + 1}</strong>
+          <button onclick="removeFunction(${index})" style="background: var(--accent); color: white; border: none; padding: 0.3rem 0.6rem; border-radius: 6px; cursor: pointer; font-size: 0.8rem;">删除</button>
+        </div>
+        <div class="function-expression">${def.formula}</div>
+        <div style="font-size: 0.85rem; color: var(--text-light); margin-top: 0.5rem;">
+          ${def.params.map(p => `${p.label.split(' ')[0]} = ${func.params[p.name].toFixed(2)}`).join(', ')}
+        </div>
+      `;
+      list.appendChild(item);
+    });
+    
+    updateFeaturePoints();
+    updateLegend();
+  }
+
+  // 删除函数
+  function removeFunction(index) {
+    functions.splice(index, 1);
+    updatePlot();
+    updateFunctionList();
+  }
+
+  // 更新特征点
+  function updateFeaturePoints() {
+    const container = document.getElementById('featurePoints');
+    container.innerHTML = '<h4 style="margin-bottom: 1rem; color: var(--secondary); font-size: 0.95rem;">特征点</h4>';
+    
+    functions.forEach((func, index) => {
+      const def = functionDefinitions[func.type];
+      const points = def.features(func.params);
+      
+      points.forEach(point => {
+        if (isFinite(point.x) && isFinite(point.y)) {
+          const pointDiv = document.createElement('div');
+          pointDiv.className = 'feature-point';
+          pointDiv.textContent = `函数 #${index + 1}: ${point.type} (${point.x.toFixed(2)}, ${point.y.toFixed(2)})`;
+          container.appendChild(pointDiv);
+        }
+      });
+    });
+  }
+
+  // 更新图例
+  function updateLegend() {
+    const legend = document.getElementById('legend');
+    legend.innerHTML = '';
+    
+    functions.forEach((func, index) => {
+      const def = functionDefinitions[func.type];
+      const item = document.createElement('div');
+      item.className = 'legend-item';
+      item.innerHTML = `
+        <div class="legend-color" style="background: ${func.color};"></div>
+        <span>${def.name} #${index + 1}</span>
+      `;
+      legend.appendChild(item);
+    });
+    
+    if (document.getElementById('showDerivative').checked) {
+      functions.forEach((func, index) => {
+        const def = functionDefinitions[func.type];
+        const item = document.createElement('div');
+        item.className = 'legend-item';
+        item.innerHTML = `
+          <div class="legend-color" style="background: ${func.color}; opacity: 0.5; border-top: 2px dashed ${func.color};"></div>
+          <span>${def.name} #${index + 1} 导数</span>
+        `;
+        legend.appendChild(item);
+      });
+    }
+  }
+
+  // 更新绘图
+  function updatePlot() {
+    if (animationFrame) {
+      cancelAnimationFrame(animationFrame);
+    }
+    
+    animationFrame = requestAnimationFrame(() => {
+      const canvas = document.getElementById('mainCanvas');
+      const ctx = canvas.getContext('2d');
+      const width = canvas.width;
+      const height = canvas.height;
+      
+      ctx.clearRect(0, 0, width, height);
+      
+      const centerX = width / 2;
+      const centerY = height / 2;
+      const scale = viewState.scale;
+      
+      // 绘制网格
+      if (document.getElementById('showGrid').checked) {
+        ctx.strokeStyle = '#E5E7EB';
+        ctx.lineWidth = 1;
+        
+        const startX = Math.floor((-centerX / scale - viewState.offsetX) / 1) * 1;
+        const endX = Math.ceil((centerX / scale - viewState.offsetX) / 1) * 1;
+        const startY = Math.floor((-centerY / scale - viewState.offsetY) / 1) * 1;
+        const endY = Math.ceil((centerY / scale - viewState.offsetY) / 1) * 1;
+        
+        for (let x = startX; x <= endX; x += 1) {
+          const px = centerX + (x + viewState.offsetX) * scale;
+          ctx.beginPath();
+          ctx.moveTo(px, 0);
+          ctx.lineTo(px, height);
+          ctx.stroke();
+        }
+        
+        for (let y = startY; y <= endY; y += 1) {
+          const py = centerY - (y + viewState.offsetY) * scale;
+          ctx.beginPath();
+          ctx.moveTo(0, py);
+          ctx.lineTo(width, py);
+          ctx.stroke();
+        }
+      }
+      
+      // 绘制坐标轴
+      if (document.getElementById('showAxes').checked) {
+        ctx.strokeStyle = '#374151';
+        ctx.lineWidth = 2;
+        
+        // X轴
+        const yAxis = centerY - viewState.offsetY * scale;
+        if (yAxis >= 0 && yAxis <= height) {
+          ctx.beginPath();
+          ctx.moveTo(0, yAxis);
+          ctx.lineTo(width, yAxis);
+          ctx.stroke();
+          
+          // X轴标签和刻度
+          if (document.getElementById('showLabels').checked) {
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            const startX = Math.floor((-centerX / scale - viewState.offsetX) / 1) * 1;
+            const endX = Math.ceil((centerX / scale - viewState.offsetX) / 1) * 1;
+            for (let x = startX; x <= endX; x += 1) {
+              if (x !== 0) {
+                const px = centerX + (x + viewState.offsetX) * scale;
+                ctx.beginPath();
+                ctx.moveTo(px, yAxis - 5);
+                ctx.lineTo(px, yAxis + 5);
+                ctx.stroke();
+                ctx.fillText(x.toString(), px - 5, yAxis + 18);
+              }
+            }
+          }
+        }
+        
+        // Y轴
+        const xAxis = centerX + viewState.offsetX * scale;
+        if (xAxis >= 0 && xAxis <= width) {
+          ctx.beginPath();
+          ctx.moveTo(xAxis, 0);
+          ctx.lineTo(xAxis, height);
+          ctx.stroke();
+          
+          // Y轴标签和刻度
+          if (document.getElementById('showLabels').checked) {
+            ctx.fillStyle = '#374151';
+            ctx.font = '12px Arial';
+            const startY = Math.floor((-centerY / scale - viewState.offsetY) / 1) * 1;
+            const endY = Math.ceil((centerY / scale - viewState.offsetY) / 1) * 1;
+            for (let y = startY; y <= endY; y += 1) {
+              if (y !== 0) {
+                const py = centerY - (y + viewState.offsetY) * scale;
+                ctx.beginPath();
+                ctx.moveTo(xAxis - 5, py);
+                ctx.lineTo(xAxis + 5, py);
+                ctx.stroke();
+                ctx.fillText(y.toString(), xAxis + 10, py + 4);
+              }
+            }
+          }
+        }
+      }
+      
+      // 绘制积分面积
+      if (document.getElementById('showIntegral') && document.getElementById('showIntegral').checked && functions.length > 0) {
+        const integralA = parseFloat(document.getElementById('param_integral_a')?.value || -2);
+        const integralB = parseFloat(document.getElementById('param_integral_b')?.value || 2);
+        const func = functions[functions.length - 1];
+        const def = functionDefinitions[func.type];
+        
+        if (integralA < integralB) {
+          ctx.fillStyle = func.color;
+          ctx.globalAlpha = 0.3;
+          ctx.beginPath();
+          
+          const pa = centerX + (integralA + viewState.offsetX) * scale;
+          const pb = centerX + (integralB + viewState.offsetX) * scale;
+          const step = 1 / scale;
+          
+          let firstPoint = true;
+          for (let x = integralA; x <= integralB; x += step) {
+            const y = def.eval(x, func.params);
+            if (isFinite(y) && !isNaN(y)) {
+              const px = centerX + (x + viewState.offsetX) * scale;
+              const py = centerY - (y + viewState.offsetY) * scale;
+              
+              if (firstPoint) {
+                ctx.moveTo(px, centerY - viewState.offsetY * scale);
+                ctx.lineTo(px, py);
+                firstPoint = false;
+              } else {
+                ctx.lineTo(px, py);
+              }
+            }
+          }
+          
+          const pyEnd = centerY - (def.eval(integralB, func.params) + viewState.offsetY) * scale;
+          ctx.lineTo(pb, centerY - viewState.offsetY * scale);
+          ctx.closePath();
+          ctx.fill();
+          ctx.globalAlpha = 1;
+          
+          // 计算并显示积分值
+          const area = integrate((x) => def.eval(x, func.params), integralA, integralB);
+          document.getElementById('integralValue').textContent = `面积 ≈ ${area.toFixed(4)}`;
+        }
+      }
+      
+      // 绘制函数
+      functions.forEach(func => {
+        const def = functionDefinitions[func.type];
+        
+        // 绘制原函数（使用平滑曲线）
+        ctx.strokeStyle = func.color;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        
+        let firstPoint = true;
+        const step = 1 / scale;
+        const startX = -centerX / scale - viewState.offsetX;
+        const endX = centerX / scale - viewState.offsetX;
+        let lastX = null, lastY = null;
+        
+        for (let x = startX; x <= endX; x += step) {
+          const y = def.eval(x, func.params);
+          if (isFinite(y) && !isNaN(y)) {
+            const px = centerX + (x + viewState.offsetX) * scale;
+            const py = centerY - (y + viewState.offsetY) * scale;
+            
+            if (py >= -50 && py <= height + 50) {
+              if (firstPoint) {
+                ctx.moveTo(px, py);
+                firstPoint = false;
+                lastX = px;
+                lastY = py;
+              } else {
+                // 使用二次贝塞尔曲线实现平滑
+                const midX = (lastX + px) / 2;
+                const midY = (lastY + py) / 2;
+                ctx.quadraticCurveTo(lastX, lastY, midX, midY);
+                lastX = px;
+                lastY = py;
+              }
+            } else {
+              firstPoint = true;
+              lastX = null;
+              lastY = null;
+            }
+          } else {
+            firstPoint = true;
+            lastX = null;
+            lastY = null;
+          }
+        }
+        if (lastX !== null && lastY !== null) {
+          ctx.lineTo(lastX, lastY);
+        }
+        ctx.stroke();
+        
+        // 绘制导数
+        if (document.getElementById('showDerivative').checked) {
+          ctx.strokeStyle = func.color;
+          ctx.globalAlpha = 0.6;
+          ctx.lineWidth = 2;
+          ctx.setLineDash([5, 5]);
+          ctx.beginPath();
+          
+          firstPoint = true;
+          lastX = null;
+          lastY = null;
+          
+          for (let x = startX; x <= endX; x += step) {
+            const y = def.derivative(x, func.params);
+            if (isFinite(y) && !isNaN(y)) {
+              const px = centerX + (x + viewState.offsetX) * scale;
+              const py = centerY - (y + viewState.offsetY) * scale;
+              
+              if (py >= -50 && py <= height + 50) {
+                if (firstPoint) {
+                  ctx.moveTo(px, py);
+                  firstPoint = false;
+                  lastX = px;
+                  lastY = py;
+                } else {
+                  const midX = (lastX + px) / 2;
+                  const midY = (lastY + py) / 2;
+                  ctx.quadraticCurveTo(lastX, lastY, midX, midY);
+                  lastX = px;
+                  lastY = py;
+                }
+              } else {
+                firstPoint = true;
+                lastX = null;
+                lastY = null;
+              }
+            } else {
+              firstPoint = true;
+              lastX = null;
+              lastY = null;
+            }
+          }
+          if (lastX !== null && lastY !== null) {
+            ctx.lineTo(lastX, lastY);
+          }
+          ctx.stroke();
+          ctx.setLineDash([]);
+          ctx.globalAlpha = 1;
+        }
+        
+        // 绘制特征点（带动画效果）
+        if (document.getElementById('showPoints').checked) {
+          const points = def.features(func.params);
+          points.forEach(point => {
+            if (isFinite(point.x) && isFinite(point.y)) {
+              const px = centerX + (point.x + viewState.offsetX) * scale;
+              const py = centerY - (point.y + viewState.offsetY) * scale;
+              
+              if (px >= 0 && px <= width && py >= 0 && py <= height) {
+                // 外圈动画
+                ctx.strokeStyle = func.color;
+                ctx.lineWidth = 2;
+                ctx.globalAlpha = 0.3;
+                for (let r = 8; r <= 16; r += 4) {
+                  ctx.beginPath();
+                  ctx.arc(px, py, r, 0, 2 * Math.PI);
+                  ctx.stroke();
+                }
+                ctx.globalAlpha = 1;
+                
+                // 中心点
+                ctx.fillStyle = func.color;
+                ctx.beginPath();
+                ctx.arc(px, py, 6, 0, 2 * Math.PI);
+                ctx.fill();
+                
+                // 白色边框
+                ctx.strokeStyle = 'white';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                if (document.getElementById('showLabels').checked) {
+                  ctx.fillStyle = '#374151';
+                  ctx.font = '10px Arial';
+                  ctx.fillText(`${point.type}`, px + 10, py - 10);
+                }
+              }
+            }
+          });
+        }
+      });
+    });
+  }
+
+  // 视图控制
+  function zoomIn() {
+    viewState.scale *= 1.2;
+    viewState.scale = Math.min(200, viewState.scale);
+    updatePlot();
+  }
+
+  function zoomOut() {
+    viewState.scale *= 0.8;
+    viewState.scale = Math.max(10, viewState.scale);
+    updatePlot();
+  }
+
+  function resetView() {
+    viewState.scale = 50;
+    viewState.offsetX = 0;
+    viewState.offsetY = 0;
+    updatePlot();
+  }
+
+  function clearAll() {
+    if (confirm('确定要清除所有函数吗？')) {
+      functions = [];
+      stopAnimation();
+      isAnimating = false;
+      document.getElementById('animationBtn').textContent = '▶️ 开始动画';
+      document.getElementById('animationProgress').style.display = 'none';
+      updatePlot();
+      updateFunctionList();
+    }
+  }
+
+  // 保存截图
+  function saveScreenshot() {
+    const canvas = document.getElementById('mainCanvas');
+    const link = document.createElement('a');
+    link.download = `函数图像_${new Date().getTime()}.png`;
+    link.href = canvas.toDataURL('image/png');
+    link.click();
+  }
+
+  // 页面加载时初始化
+  window.addEventListener('load', init);
+</script>
+</body>
+</html>
