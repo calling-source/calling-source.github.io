@@ -1,0 +1,525 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Group Experiment Presentation</title>
+    <style>
+        /* --- 全局设置 --- */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Segoe UI", "Roboto", "Helvetica Neue", sans-serif;
+        }
+
+        body {
+            background-color: #1a1a1a;
+            color: #fff;
+            overflow-x: hidden;
+        }
+
+        /* --- 首页 (Landing Page) --- */
+        #landing-page {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background-image: url('cover.png'); 
+            background-size: cover;
+            background-position: center;
+            z-index: 100;
+            transition: transform 0.8s cubic-bezier(0.68, -0.55, 0.27, 1.55);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+        }
+
+        #landing-page::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, rgba(0,0,0,0) 60%, rgba(57, 197, 187, 0.3) 100%);
+            pointer-events: none;
+        }
+
+        /* 进入按钮 */
+        .enter-btn {
+            position: relative;
+            bottom: 15%;
+            padding: 15px 60px;
+            font-size: 24px;
+            font-weight: bold;
+            color: #333;
+            background: rgba(255, 255, 255, 0.65); 
+            border: 2px solid rgba(255, 255, 255, 0.8);
+            cursor: pointer;
+            backdrop-filter: blur(5px);
+            transform: skewX(-20deg);
+            transition: all 0.3s ease;
+            z-index: 101;
+            letter-spacing: 2px;
+            overflow: hidden;
+        }
+
+        .enter-btn span {
+            display: block;
+            transform: skewX(20deg);
+        }
+
+        .enter-btn:hover {
+            background: rgba(57, 197, 187, 0.9);
+            color: #fff;
+            box-shadow: 0 0 20px rgba(57, 197, 187, 0.6);
+            padding-left: 70px;
+            padding-right: 50px;
+        }
+
+        /* --- 实验展示页 (Main Content) --- */
+        #main-content {
+            display: none;
+            width: 100%;
+            min-height: 100vh;
+            padding-bottom: 100px;
+            background: #f0f0f0;
+            /* background-image:  */
+            background-size: 40px 40px;
+        }
+
+        .header-bar {
+            background: #333;
+            color: #39c5bb;
+            padding: 20px;
+            font-size: 2rem;
+            font-weight: 900;
+            font-style: italic;
+            text-align: center;
+            text-transform: uppercase;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            position: sticky;
+            top: 0;
+            z-index: 50;
+        }
+
+        /* 单个实验容器 - 强制 16:9 比例 */
+        .experiment-section {
+            position: relative;
+            width: 90%;
+            max-width: 1200px;
+            aspect-ratio: 16 / 9;
+            margin: 60px auto;
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+            transform: translateY(50px);
+            opacity: 0;
+            transition: all 0.8s ease;
+        }
+
+        .experiment-section.visible {
+            transform: translateY(0);
+            opacity: 1;
+        }
+
+        .exp-bg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 0;
+            filter: brightness(0.8);
+        }
+
+        /* [用户修改] 背景图路径 */
+        .bg-1 { background-image: url('exp1.png'); }
+        .bg-2 { background-image: url('exp2.png'); }
+        .bg-3 { background-image: url('lab3.png'); }
+        .bg-4 { background-image: url('exp4.png'); }
+        /* 新增：实验五背景 */
+        .bg-5 { background-image: url('exp5.png'); }
+
+        /* 内容层 - 绝对定位 */
+        .exp-content {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: flex;
+            flex-wrap: wrap;
+            padding: 40px;
+            background: linear-gradient(90deg, rgba(0,0,0,0.9) 0%, rgba(0,0,0,0.6) 50%, rgba(0,0,0,0.2) 100%);
+            gap: 30px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        /* 视频按钮区域 */
+        .media-trigger-area {
+            flex: 0 0 180px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* 半透明播放按钮 */
+        .play-btn {
+            position: relative;
+            width: 100%;
+            padding: 15px 0;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #39c5bb;
+            color: #39c5bb;
+            font-size: 1rem;
+            font-weight: 800;
+            font-style: italic;
+            cursor: pointer;
+            backdrop-filter: blur(8px);
+            transform: skewX(-15deg);
+            transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-transform: uppercase;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        /* 播放图标 */
+        .play-icon {
+            width: 0; 
+            height: 0; 
+            border-top: 10px solid transparent;    
+            border-bottom: 10px solid transparent; 
+            border-left: 18px solid #39c5bb;       
+            transform: skewX(15deg);
+            margin-bottom: 5px;
+            transition: all 0.3s ease;
+        }
+
+        .play-btn span {
+            transform: skewX(15deg);
+            letter-spacing: 1px;
+        }
+
+        .play-btn:hover {
+            background: rgba(57, 197, 187, 0.2);
+            box-shadow: 0 0 25px rgba(57, 197, 187, 0.4);
+            transform: scale(1.05) skewX(-15deg);
+            color: #fff;
+            border-color: #fff;
+        }
+        
+        .play-btn:hover .play-icon {
+            border-left-color: #fff;
+            transform: skewX(15deg) scale(1.2);
+        }
+
+        /* --- 文本区域 --- */
+        .text-container {
+            flex: 1 1 300px;
+            color: #fff;
+        }
+
+        .exp-title {
+            font-size: 1.8rem;
+            margin-bottom: 12px;
+            color: #fff;
+            text-shadow: 3px 3px 0px #39c5bb;
+            font-style: italic;
+            font-weight: 900;
+        }
+
+        .exp-desc {
+            font-size: 0.95rem;
+            line-height: 1.5;
+            background: rgba(0, 0, 0, 0.3);
+            padding: 15px;
+            border-left: 4px solid #ff0055;
+            border-radius: 0 10px 10px 0;
+            backdrop-filter: blur(3px);
+        }
+
+        .exp-number {
+            position: absolute;
+            top: -10px;
+            right: 20px;
+            font-size: 10rem;
+            font-weight: 900;
+            color: rgba(255,255,255,0.07);
+            font-style: italic;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        /* --- 返回按钮 --- */
+        .back-btn {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            background: #333; 
+            color: #39c5bb;
+            font-size: 1.5rem;
+            font-weight: 900;
+            font-style: italic;
+            text-transform: uppercase;
+            padding: 15px 40px;
+            border: none;
+            clip-path: polygon(10% 0, 100% 0, 100% 70%, 90% 100%, 0 100%, 0 30%);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            cursor: pointer;
+            z-index: 200;
+            transition: all 0.3s ease;
+        }
+
+        .back-btn:hover {
+            transform: scale(1.1) skewX(-10deg);
+            background: #fff;
+            color: #ff0055;
+            box-shadow: 0 0 25px rgba(255, 0, 85, 0.5);
+        }
+
+        /* --- 视频弹窗 (Modal) --- */
+        #video-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        #video-modal.active {
+            display: flex;
+            opacity: 1;
+        }
+
+        .modal-content {
+            position: relative;
+            width: 80%;
+            max-width: 1000px;
+            aspect-ratio: 16/9;
+            background: #000;
+            border: 2px solid #39c5bb;
+            box-shadow: 0 0 50px rgba(57, 197, 187, 0.3);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .modal-content video {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+        }
+
+        /* 关闭按钮 */
+        .close-modal-btn {
+            position: absolute;
+            top: -50px;
+            right: 0;
+            color: #fff;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-modal-btn:hover {
+            color: #ff0055;
+        }
+
+    </style>
+</head>
+<body>
+
+    <div id="landing-page">
+        <button class="enter-btn" onclick="enterSite()">
+            <span>START/ENTER</span>
+        </button>
+    </div>
+
+    <div id="main-content">
+        <div class="header-bar">MY EXPERIMENTS COLLECTION</div>
+
+        <div class="experiment-section">
+            <div class="exp-bg bg-1"></div>
+            <div class="exp-number">01</div>
+            <div class="exp-content">
+                <div class="media-trigger-area">
+                    <button class="play-btn" onclick="openVideo('video1.mp4')">
+                        <div class="play-icon"></div>
+                        <span>Watch Video</span>
+                    </button>
+                </div>
+                <div class="text-container">
+                    <h2 class="exp-title">Experiment  01</h2>
+                    <p class="exp-desc">
+                        实验一 遥控灯
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="experiment-section">
+            <div class="exp-bg bg-2"></div>
+            <div class="exp-number">02</div>
+            <div class="exp-content">
+                <div class="media-trigger-area">
+                    <button class="play-btn" onclick="openVideo('video2.mp4')">
+                        <div class="play-icon"></div>
+                        <span>Watch Video</span>
+                    </button>
+                </div>
+                <div class="text-container">
+                    <h2 class="exp-title">Experiment  02</h2>
+                    <p class="exp-desc">
+                        实验二 音乐编程
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="experiment-section">
+            <div class="exp-bg bg-3"></div>
+            <div class="exp-number">03</div>
+            <div class="exp-content">
+                <div class="media-trigger-area">
+                    <button class="play-btn" onclick="openVideo('video3.mp4')">
+                        <div class="play-icon"></div>
+                        <span>Watch Video</span>
+                    </button>
+                </div>
+                <div class="text-container">
+                    <h2 class="exp-title">Experiment  03</h2>
+                    <p class="exp-desc">
+                        实验三 温湿度传感器
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="experiment-section">
+            <div class="exp-bg bg-4"></div>
+            <div class="exp-number">04</div>
+            <div class="exp-content">
+                <div class="media-trigger-area">
+                    <button class="play-btn" onclick="openVideo('video4.mp4')">
+                        <div class="play-icon"></div>
+                        <span>Watch Video</span>
+                    </button>
+                </div>
+                <div class="text-container">
+                    <h2 class="exp-title">Experiment  04</h2>
+                    <p class="exp-desc">
+                        实验四 电子时钟
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <div class="experiment-section">
+            <div class="exp-bg bg-5"></div>
+            <div class="exp-number">05</div>
+            <div class="exp-content">
+                <div class="media-trigger-area">
+                    <button class="play-btn" onclick="openVideo('show.mp4')">
+                        <div class="play-icon"></div>
+                        <span>Watch Video</span>
+                    </button>
+                </div>
+                <div class="text-container">
+                    <h2 class="exp-title">Experiment  05</h2>
+                    <p class="exp-desc">
+                       小组项目展示 红外避障智能车 
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <button class="back-btn" onclick="backToHome()">RETURN</button>
+
+    </div>
+
+    <div id="video-modal" onclick="closeVideo(event)">
+        <div class="modal-content">
+            <div class="close-modal-btn" onclick="closeVideo(event)">× CLOSE</div>
+            <video id="popup-player" controls>
+                <source src="" type="video/mp4">
+                Your browser does not support the video tag.
+            </video>
+        </div>
+    </div>
+
+    <script>
+        function enterSite() {
+            const landing = document.getElementById('landing-page');
+            const mainContent = document.getElementById('main-content');
+            
+            landing.style.transform = 'translateY(-100%)';
+            mainContent.style.display = 'block';
+            window.scrollTo(0, 0);
+
+            setTimeout(() => {
+                const sections = document.querySelectorAll('.experiment-section');
+                sections.forEach((sec, index) => {
+                    setTimeout(() => {
+                        sec.classList.add('visible');
+                    }, index * 200);
+                });
+            }, 500);
+        }
+
+        function backToHome() {
+            const landing = document.getElementById('landing-page');
+            const mainContent = document.getElementById('main-content');
+            
+            landing.style.transform = 'translateY(0)';
+
+            setTimeout(() => {
+                mainContent.style.display = 'none';
+                const sections = document.querySelectorAll('.experiment-section');
+                sections.forEach((sec) => {
+                    sec.classList.remove('visible');
+                });
+            }, 800);
+        }
+
+        /* --- 视频弹窗控制逻辑 --- */
+        const modal = document.getElementById('video-modal');
+        const player = document.getElementById('popup-player');
+
+        function openVideo(videoFilename) {
+            player.src = videoFilename; 
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.classList.add('active');
+            }, 10);
+            player.play();
+        }
+
+        function closeVideo(event) {
+            if (event.target === modal || event.target.classList.contains('close-modal-btn')) {
+                modal.classList.remove('active');
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                    player.pause();
+                    player.currentTime = 0;
+                    player.src = "";
+                }, 300);
+            }
+        }
+    </script>
+</body>
+</html>
